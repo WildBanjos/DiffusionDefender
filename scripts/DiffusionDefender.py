@@ -24,14 +24,15 @@ file_handler = logging.FileHandler(logfile)
 file_handler.setFormatter(log_format)
 log.addHandler(file_handler)
 
-def FindAndReplace(StringToReview,Replacements):
-    TotalReplacements = 0
-    for key, value in Replacements.items():
-        (ReviewedString, count) = re.subn(key, value, StringToReview.lower())
-        TotalReplacements = TotalReplacements + int(count)
-    if ReviewedString.lower() == StringtoReview.lower():
-        ReviewedString = StringToReview
-    return StringToReview, TotalReplacements
+def find_and_replace(string_to_review, replacements):
+    total_replacements = 0
+    old_string, cur_string = string_to_review, string_to_review
+    for k, v in replacements.items():
+        (cur_string, count) = re.subn(k, v, cur_string.lower())
+        total_replacements += int(count)
+    if cur_string.lower() == old_string.lower():
+        cur_string = old_string
+    return cur_string, total_replacements
 
 
 def ReviewBlacklist(StringToReview,blacklist): #This works
@@ -41,12 +42,12 @@ def ReviewBlacklist(StringToReview,blacklist): #This works
             result = True
     return result
 
-def LoadConfig(): #How do I test if this works? Logging.
+def LoadConfig(configonly=False):
     #Load Options
     configfile = os.path.join(pth, 'config.ini')
-    log.info(f'config is at {configfile}')
+    log.debug(f'config is at {configfile}')
     blacklistfile=os.path.join(pth, 'blacklist.txt')
-    log.info(f'blacklist is at {blacklistfile}')
+    log.debug(f'blacklist is at {blacklistfile}')
     replacementfile=os.path.join(pth, 'replacements.ini')
 
     config_options = {}
@@ -54,35 +55,27 @@ def LoadConfig(): #How do I test if this works? Logging.
     config.read(configfile)
 
     config_options = dict(config.items('DEFAULT'))
-    log.info(f'Config read as: {json.dumps(config_options)}')
-    booloptions = ['useblacklist', 'usefindandreplace','addtolog']
+    log.debug(f'Config read as: {json.dumps(config_options)}')
+    booloptions = ['useblacklist', 'usefindandreplace','addtolog','showboxinui']
     for option in booloptions:
         config_options[option] = bool(strtobool(config_options[option]))
-
-
-    #UseBlacklist = config['Default'].getboolean('UseBlacklist')
-    #UseFindAndReplace = config['Default'].getboolean('UseFindAndReplace')
-    #BlacklistBehavior = config['Default']['BlacklistBehavior']
-    #AddToLog = config['Default'].getboolean('AddToLog')
-    #CustomPrompt = config['Default']['CustomPrompt']
-
-    #if configonly:
-    #    return UseBlacklist, UseFindAndReplace, BlacklistBehavior
-
+    if configonly:
+        return config_options
     #Load blacklist
     blacklist = []
     if config_options['useblacklist']:
         with open(blacklistfile,'r') as f: blacklist = f.read().splitlines()
-        log.info(f'Loaded {len(blacklist)} items from blacklist')
+        log.debug(f'Loaded {len(blacklist)} items from blacklist')
 
     #Load Replacement pairs
     replace_dict = {}
     if config_options['usefindandreplace']:
-        config.read(replacementfile)
-        replace_dict = dict(config.items('DEFAULT'))
-        log.info(f'Loaded {len(replace_dict)} replacement pairs')
+        replace = configparser.ConfigParser()
+        replace.read(replacementfile)
+        replace_dict = dict(replace.items('DEFAULT'))
+        log.debug(f'Loaded {len(replace_dict)} replacement pairs')
 
-    return replace_dict, blacklist, config_options #UseBlacklist, UseFindAndReplace, BlacklistBehavior,AddToLog,CustomPrompt
+    return replace_dict, blacklist, config_options
 
 
 
@@ -94,13 +87,14 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def ui(self,is_img2img):
-        with gr.Accordion("Diffusion Defender"):
-            gr.Markdown("Diffusion Defender is Active")
-        log.info('Defender loaded into UI')
+        config_options = LoadConfig(True)
+        if config_options['showboxinui']:
+            with gr.Accordion("Diffusion Defender"):
+                gr.Markdown(config_options['customtextinuibox'])
+                log.info('Defender loaded into UI')
         return
 
-    def process(self,p):  #This block doesn't appear to be running? Had to change it to process.
-        #replacements, blacklist, UseBlacklist, UseFindAndReplace, BlacklistBehavior, AddToLog, CustomPrompt = LoadConfig()
+    def process(self,p):
         replacements, blacklist, config_options = LoadConfig()
         TotalReplacements = 0
         BlacklistTripped = False
@@ -116,10 +110,11 @@ class Script(scripts.Script):
 
         try:
             if config_options['usefindandreplace']:
-                new_prompt,TotalReplacements = FindAndReplace(prompt,replacements)
+                new_prompt,TotalReplacements = find_and_replace(prompt,replacements)
                 p.prompt = new_prompt
-        except Exception:
-            log.error('Unable to execute Find and Replace')
+                p.all_prompts[0] = new_prompt
+        except Exception as ex:
+            log.error(f'Unable to execute Find and Replace {ex=}, {type(ex)})')
 
         #Logging
         try:
@@ -132,24 +127,28 @@ class Script(scripts.Script):
             log.error(f'Unable to add to log: {ex=}, {type(ex)}')
             raise
 
+        #Enforce Blacklist Behavior.
         BlacklistBehavior = config_options['blacklistbehavior']
+        log.debug(f'BlacklistBehavior set for:{BlacklistBehavior}')
         try:
             if BlacklistTripped:
                 if BlacklistBehavior == "StopProcessing":
                     p.batch_size = 1
-                    #shared.state.interru()
+                    p.n_iter = 1
                     log.debug('Ending Prompt')
+                    shared.state.interrupt()
                     shared.state.end()
-                    return
                 elif BlacklistBehavior == "ReturnBlank":
                     prompt = ""
                     p.batch_size = 1
-                    p.prompt = prompt
+                    p.prompt, p.all_prompts[0] = prompt, prompt
+                    p.n_iter = 1
                     log.debug('Replaced with blank prompt of empty string')
-                    return
                 elif BlacklistBehavior == "ReturnPrompt":
-                    p.prompt = config_options['customprompt']
+                    prompt = config_options['customprompt']
+                    p.prompt, p.all_prompts[0] = prompt, prompt
                     p.batch_size = 1
+                    p.n_iter = 1
                     log.debug(f'Returned custom prompt of {p.prompt}')
                 elif BlacklistBehavior == "LogOnly":
                     if not config_options['addtolog']:
@@ -159,9 +158,8 @@ class Script(scripts.Script):
                     log.debug('No Action Taken')
                 else:
                     log.warning("ScriptName: BlacklistBehavior is not set in .ini file, defaulting to NoAction")
-                #proc = process_images(p) Doesn't look like I need this?
-                return p
+                #return p
         except Exception as ex:
             log.error(f'Unable to Enforce Blacklist Behavior: {ex=}, {type(ex)}')
             raise
-            return
+            #return
