@@ -16,13 +16,15 @@ I want to note that this extension is not intended to enforce a certain morality
     - Take no action
 - Run a custom find and replace on all incoming prompts.
 
-## Installation and Configuration
+## Installation
 To install this extension, follow these steps:
 
 1. Clone the repo into the Extensions Directory
     git clone https://github.com/WildBanjos/DiffusionDefender.git
 2. Configure config.ini
-3. Configure blacklist.txt and replacements.ini as needed
+3. Configure blacklist.txt and replacements.ini as needed. Samples are provided in the files.
+4. Extension is ready to use
 
 ## ToDo
 - Add option to block loading of extension tab.
+- Expand instructions
