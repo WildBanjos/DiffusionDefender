@@ -24,5 +24,5 @@ To install this extension, follow these steps:
 2. Configure config.ini
 3. Configure blacklist.txt and replacements.ini as needed
 
-##ToDo
+## ToDo
 - Add option to block loading of extension tab.
