@@ -24,6 +24,17 @@ To install this extension, follow these steps:
 3. Configure blacklist.txt and replacements.ini as needed. Samples are provided in the files.
 4. Extension is ready to use
 
+## Configuration
+### Blacklist.txt
+The blacklist.txt file is easy to configure. On each new line, enter one term or phrase you would like to blackist. There is no need to separate terms with a comma or enclose them in quotes. Please be sure to delete the default sample text before adding your list.
+
+Note that the function does not separate by word and may capture other words that contain your blacklisted term. For example a blacklisted term of "red" will also block "redmond". If you beleive this is happening, double check your defender.log file. To remedy this, add the expression "(\s|\,|\_|\-|$)" without the quotes to the end of your term. Ex: "red(\s|\,|\_|\-|$)". You do not need to add this by default to all terms.
+
+As suggested by the previous note, regular expressions are allowed in the blacklist. However, they have not been thoroughly tested yet and may break things.
+
+### replacements.ini
+To configure replacement values, please enter *find:replace* pairs in the replacements.ini file. For example, the replacement pair "blue:red" will replace all instances of the word "blue" with the word "red". As mentioend in the previous section, this may lead to overzealous repalcements. This may be solved in a similar with by adding the regular expression tag as noted above.
+
 ## ToDo
 - Add option to block loading of extension tab.
 - Expand instructions
