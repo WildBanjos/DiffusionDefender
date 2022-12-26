@@ -33,8 +33,7 @@ Note that the function does not separate by word and may capture other words tha
 As suggested by the previous note, regular expressions are allowed in the blacklist. However, they have not been thoroughly tested yet and may break things.
 
 ### replacements.ini
-To configure replacement values, please enter *find:replace* pairs in the replacements.ini file. For example, the replacement pair "blue:red" will replace all instances of the word "blue" with the word "red". As mentioend in the previous section, this may lead to overzealous repalcements. This may be solved in a similar with by adding the regular expression tag as noted above.
-
+To configure replacement values, please enter *find:replace* pairs in the replacements.ini file. For example, the replacement pair "blue:red" will replace all instances of the word "blue" with the word "red". As mentioend in the previous section, this may lead to overzealous replacements. This may be solved in a similar way by adding the regular expression tag as noted above. 
 ## ToDo
 - Add option to block loading of extension tab.
 - Expand instructions
