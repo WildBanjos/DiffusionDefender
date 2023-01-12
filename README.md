@@ -48,4 +48,3 @@ Please feel free to open a PR with additional wordlist suggestions.
 
 - [Swears](http://www.bannedwordlist.com/lists/swearWords.txt)
 - [Banned by Google](https://github.com/coffee-and-fun/google-profanity-words/blob/main/data/list.txt)
-- [2022 list of p***hub most searched terms](https://preview.redd.it/xs17jvpi266a1.jpg)
