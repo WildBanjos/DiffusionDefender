@@ -40,3 +40,12 @@ To configure replacement values, please enter *find:replace* pairs in the replac
 
 ## This is only a tool, nothing more.
 I want to note that this extension is not intended to enforce a certain morality, be prudish, or make any claims about what constitutes an "inappropriate prompt." While the creator of this extension may have had certain types of prompts in mind when designing it, there is no pre-defined blacklist included in the extension. Blacklisting is a necessary moderation technique for any modern service. There may be a variety of situations in which an administrator would want to use a blacklist to prevent specific terms from being submitted for processing. It is up to the administrator to determine what blacklist is appropriate for their specific use case
+
+## Links to various wordlists
+Please note that the below lists were simply found online. They are not curated or managed by me. As mentioned, they are not intended to bias or enforce a certain use case or morality.
+
+Please feel free to open a PR with additional wordlist suggestions.
+
+- [Swears](http://www.bannedwordlist.com/lists/swearWords.txt)
+- [Banned by Google](https://github.com/coffee-and-fun/google-profanity-words/blob/main/data/list.txt)
+- [2022 list of p***hub most searched terms](https://preview.redd.it/xs17jvpi266a1.jpg)
