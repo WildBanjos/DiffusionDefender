@@ -38,7 +38,9 @@ def find_and_replace(string_to_review, replacements):
 def ReviewBlacklist(StringToReview,blacklist): #This works
     result = False
     for words in blacklist:
-        if re.search(words,StringToReview.lower()) != None:
+        m = re.search(words,StringToReview.lower())
+        if m != None:
+            log.info(f'BLACKLIST WORD HIT: {m.group(0)}')
             result = True
     return result
 

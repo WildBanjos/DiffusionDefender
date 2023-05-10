@@ -32,6 +32,9 @@ Note that the function does not separate by word and may capture other words tha
 
 As suggested by the previous note, regular expressions are allowed in the blacklist. However, they have not been thoroughly tested yet and may break things.
 
+The blacklist.txt hits on any string containing given words. So e.g. ass in blacklist blocks also glasses, biomass or assault.
+To hit only word surrounded by non-word characters, use ([^\w+]|^)word2block([^\w+]|$).
+
 ### replacements.ini
 To configure replacement values, please enter *find:replace* pairs in the replacements.ini file. For example, the replacement pair "blue:red" will replace all instances of the word "blue" with the word "red". As mentioend in the previous section, this may lead to overzealous replacements. This may be solved in a similar way by adding the regular expression tag as noted above. 
 ## ToDo
