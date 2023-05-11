@@ -9,3 +9,4 @@ or phrase
 on
 each
 line
+([^\w+]|^)not partial hit([^\w+]|$)
