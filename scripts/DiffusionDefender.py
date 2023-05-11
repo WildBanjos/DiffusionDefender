@@ -37,12 +37,13 @@ def find_and_replace(string_to_review, replacements):
 
 def ReviewBlacklist(StringToReview,blacklist): #This works
     result = False
+    hit_words = []
     for words in blacklist:
         m = re.search(words,StringToReview.lower())
-        if m != None:
-            log.info(f'BLACKLIST WORD HIT: {m.group(0)}')
+        if m is not None:
+            hit_words.append(m.group(0))
             result = True
-    return result
+    return result, hit_words
 
 def LoadConfig(configonly=False):
     #Load Options
@@ -106,7 +107,10 @@ class Script(scripts.Script):
 
         try:
             if config_options['useblacklist']:
-                BlacklistTripped = ReviewBlacklist(prompt,blacklist)
+                BlacklistTripped, HitWords = ReviewBlacklist(prompt,blacklist)
+                if config_options['addtolog'] and len(HitWords) > 0:
+                    log.info(f'BLACKLIST WORDS HIT: {",".join(HitWords)}')
+
         except Exception as ex:
             log.error(f'Unable to reference prompt against blacklist: {type(ex)}')
 
